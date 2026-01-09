@@ -4,13 +4,16 @@ verify_ssl = true
 name = "pip_conf_index_global"
 
 [packages]
-django = "*"
 djangorestframework = "*"
 djangorestframework-simplejwt = "*"
 python-decouple = "*"
 drf-spectacular = "*"
 django-mssql-backend = "*"
 pyodbc = "*"
+django = "*"
+channels = "*"
+channels-redis = "*"
+daphne = "*"
 
 [dev-packages]
 

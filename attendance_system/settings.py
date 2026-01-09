@@ -33,12 +33,14 @@ ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="localhost,127.0.0.1", cast=Csv(
 # Application definition
 
 INSTALLED_APPS = [
+    "daphne",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "channels",
     "users",
     "classes",
     "rest_framework",
@@ -73,6 +75,19 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "attendance_system.wsgi.application"
+
+# ASGI Application for WebSocket support
+ASGI_APPLICATION = "attendance_system.asgi.application"
+
+# Channel Layers (Redis)
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}
 
 
 # Database
