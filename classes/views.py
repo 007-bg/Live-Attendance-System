@@ -117,24 +117,23 @@ class ClassViewSet(viewsets.ViewSet):
         )
 
     @extend_schema(
-        request=AddStudentSerializer,
         responses={
             200: ClassReadSerializer,
             403: OpenApiResponse(description="Forbidden, not class teacher"),
             404: OpenApiResponse(description="Class not found or Student not found"),
         },
-        description="Add a student to the class. Only the teacher who owns the class can add students.",
+        description="Add a student to the class by student_id in URL. Only the teacher who owns the class can add students.",
     )
     @action(
         detail=True,
         methods=["post"],
-        url_path="add-student",
+        url_path="add-student/(?P<student_id>[^/.]+)",
         permission_classes=[IsTeacher],
     )
-    def add_student(self, request, pk=None):
+    def add_student(self, request, pk=None, student_id=None):
         """
-        POST /api/class/:id/add-student/
-        Add a student to the class. Only the teacher who owns the class can add students.
+        POST /api/class/:id/add-student/:student_id/
+        Add a student to the class by student_id in URL. Only the teacher who owns the class can add students.
         """
         class_instance = get_object_or_404(Class, pk=pk)
 
@@ -145,10 +144,7 @@ class ClassViewSet(viewsets.ViewSet):
                 status=status.HTTP_403_FORBIDDEN,
             )
 
-        serializer = AddStudentSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        student = get_object_or_404(User, id=serializer.validated_data["student_id"])
+        student = get_object_or_404(User, id=student_id, role=User.Role.STUDENT)
 
         # Add student to class
         class_instance.students.add(student)
