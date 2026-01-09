@@ -1,5 +1,5 @@
-from rest_fromwork.routers import DefaultRouter
-from attendance_system.users.views import AuthViewSet
+from rest_framework.routers import DefaultRouter
+from users.views import AuthViewSet
 
 router = DefaultRouter()
 router.register(r"auth", AuthViewSet, basename="auth")

@@ -4,10 +4,10 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from attendance_system.users.serializers.login import LoginSerializer
-from attendance_system.users.serializers.user_read import UserReadSerializer
-from attendance_system.users.serializers.user_write import UserWriteSerializer
-from attendance_system.users.utils import (
+from users.serializers.login import LoginSerializer
+from users.serializers.user_read import UserReadSerializer
+from users.serializers.user_write import UserWriteSerializer
+from users.utils import (
     create_jwt_token,
 )
 

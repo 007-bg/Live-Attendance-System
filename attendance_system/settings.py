@@ -76,28 +76,17 @@ WSGI_APPLICATION = "attendance_system.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+
 DATABASES = {
     "default": {
-        "ENGINE": config("DB_ENGINE", default="mssql"),
-        "NAME": config("DB_NAME"),
-        "HOST": config("DB_HOST"),
-        "PORT": config("DB_PORT", default=""),
-        "USER": config("DB_USER", default=""),
-        "PASSWORD": config("DB_PASSWORD", default=""),
-        "OPTIONS": {
-            "driver": config("DB_DRIVER", default="ODBC Driver 17 for SQL Server"),
-            "trusted_connection": config("DB_TRUSTED_CONNECTION", default="yes"),
-            "encrypt": config("DB_ENCRYPT", default="yes"),
-            "trust_server_certificate": config(
-                "DB_TRUST_SERVER_CERTIFICATE", default="yes"
-            ),
-        },
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
 }
 
-
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
+AUTH_USER_MODEL = "users.User"
 
 AUTH_PASSWORD_VALIDATORS = [
     {

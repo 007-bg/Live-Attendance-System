@@ -7,9 +7,10 @@ name = "pip_conf_index_global"
 django = "*"
 djangorestframework = "*"
 djangorestframework-simplejwt = "*"
+python-decouple = "*"
+drf-spectacular = "*"
 django-mssql-backend = "*"
 pyodbc = "*"
-python-decouple = "*"
 
 [dev-packages]
 

@@ -1,6 +1,5 @@
 from rest_framework import serializers
-from attendance_system.users.models import User
-from rest_framework.validators import UniqueValidator
+from users.models import User
 
 
 class UserReadSerializer(serializers.ModelSerializer):
