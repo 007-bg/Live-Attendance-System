@@ -12,7 +12,7 @@ class LoginSerializer(serializers.Serializer):
         email = attrs.get("email")
         password = attrs.get("password")
 
-        user = authenticate(username=email, password=password)
+        user = authenticate(email=email, password=password)
         if not user:
             raise serializers.ValidationError("Invalid email or password")
 

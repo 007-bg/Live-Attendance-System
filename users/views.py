@@ -10,6 +10,7 @@ from users.serializers.user_write import UserWriteSerializer
 from users.utils import (
     create_jwt_token,
 )
+from drf_spectacular.utils import extend_schema
 
 
 class AuthViewSet(viewsets.ViewSet):
@@ -23,6 +24,10 @@ class AuthViewSet(viewsets.ViewSet):
     # --------------------
     # POST /api/auth/signup/
     # --------------------
+    @extend_schema(
+        request=UserWriteSerializer,
+        responses={201: None},
+    )
     @action(detail=False, methods=["post"], permission_classes=[AllowAny])
     def signup(self, request):
         serializer = UserWriteSerializer(data=request.data)
@@ -36,6 +41,10 @@ class AuthViewSet(viewsets.ViewSet):
     # --------------------
     # POST /api/auth/login/
     # --------------------
+    @extend_schema(
+        request=LoginSerializer,
+        responses={201: None},
+    )
     @action(detail=False, methods=["post"], permission_classes=[AllowAny])
     def login(self, request):
         serializer = LoginSerializer(data=request.data)
@@ -47,6 +56,9 @@ class AuthViewSet(viewsets.ViewSet):
     # --------------------
     # GET /api/auth/me/
     # --------------------
+    @extend_schema(
+        responses={200: UserReadSerializer},
+    )
     @action(detail=False, methods=["get"], permission_classes=[IsAuthenticated])
     def me(self, request):
         serializer = UserReadSerializer(request.user)

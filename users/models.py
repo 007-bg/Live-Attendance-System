@@ -4,11 +4,14 @@ from django.contrib.auth.models import AbstractUser
 
 # Create your models here.
 class User(AbstractUser):
-    TEACHER = "TEACHER"
-    STUDENT = "STUDENT"
-    ROLE_CHOICES = (
-        (TEACHER, "Teacher"),
-        (STUDENT, "Student"),
-    )
+    class Role(models.TextChoices):
+        ADMIN = "ADMIN", "Admin"
+        TEACHER = "TEACHER", "Teacher"
+        STUDENT = "STUDENT", "Student"
 
-    role = models.CharField(max_length=10, choices=ROLE_CHOICES, db_index=True)
+    email = models.EmailField(unique=True)
+
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ["username"]
+
+    role = models.CharField(max_length=10, choices=Role.choices, db_index=True)
