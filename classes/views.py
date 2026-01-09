@@ -10,6 +10,7 @@ from classes.models import Class, Attendance
 from classes.serializers import (
     ClassWriteSerializer,
     ClassReadSerializer,
+    ClassDetailSerializer,
     AddStudentSerializer,
     StartAttendanceSerializer,
 )
@@ -52,6 +53,44 @@ class ClassViewSet(viewsets.ViewSet):
     ViewSet for managing classes.
     All endpoints use @action decorators with explicit permissions.
     """
+
+    @extend_schema(
+        responses={
+            200: ClassReadSerializer(many=True),
+        },
+        description="List all classes. Teachers see classes they teach, students see classes they're enrolled in, admins see all classes.",
+    )
+    @action(detail=False, methods=["get"], permission_classes=[IsAuthenticated])
+    def list_classes(self, request):
+        """
+        GET /api/class/list_classes/
+        List all classes based on user role.
+        - Teachers: Classes they teach
+        - Students: Classes they're enrolled in
+        - Admins: All classes
+        """
+        user = request.user
+
+        if user.role == User.Role.TEACHER:
+            # Teachers see classes they teach
+            classes = Class.objects.filter(teacher=user).prefetch_related(
+                "students", "teacher"
+            )
+        elif user.role == User.Role.STUDENT:
+            # Students see classes they're enrolled in
+            classes = Class.objects.filter(students=user).prefetch_related(
+                "students", "teacher"
+            )
+        elif user.role == User.Role.ADMIN:
+            # Admins see all classes
+            classes = Class.objects.all().prefetch_related("students", "teacher")
+        else:
+            classes = Class.objects.none()
+
+        serializer = ClassReadSerializer(classes, many=True)
+        return Response(
+            {"success": True, "data": serializer.data}, status=status.HTTP_200_OK
+        )
 
     @extend_schema(
         request=ClassWriteSerializer,
@@ -122,21 +161,27 @@ class ClassViewSet(viewsets.ViewSet):
 
     @extend_schema(
         responses={
-            200: ClassReadSerializer,
+            200: ClassDetailSerializer,
             403: OpenApiResponse(
                 description="Forbidden, not class teacher or enrolled student"
             ),
             404: OpenApiResponse(description="Class not found"),
         },
-        description="Get class details. Accessible by teacher (owner) or enrolled students.",
+        description="Get class details including all students and attendance sessions by class name. Accessible by teacher (owner) or enrolled students.",
     )
-    @action(detail=True, methods=["get"], permission_classes=[IsAuthenticated])
-    def get_class(self, request, pk=None):
+    @action(
+        detail=False,
+        methods=["get"],
+        permission_classes=[IsAuthenticated],
+        url_path="get-class/(?P<class_name>[^/.]+)",
+    )
+    def get_class(self, request, class_name=None):
         """
-        GET /api/class/:id/get_class/
-        Get class details. Accessible by teacher (owner) or enrolled students.
+        GET /api/class/get-class/:class_name/
+        Get class details including all students and attendance sessions by class name.
+        Accessible by teacher (owner) or enrolled students.
         """
-        class_instance = get_object_or_404(Class, pk=pk)
+        class_instance = get_object_or_404(Class, class_name=class_name)
 
         # Check access: teacher owns class OR student is enrolled
         is_teacher = (
@@ -157,7 +202,7 @@ class ClassViewSet(viewsets.ViewSet):
                 status=status.HTTP_403_FORBIDDEN,
             )
 
-        serializer = ClassReadSerializer(class_instance)
+        serializer = ClassDetailSerializer(class_instance)
         return Response(
             {"success": True, "data": serializer.data}, status=status.HTTP_200_OK
         )
