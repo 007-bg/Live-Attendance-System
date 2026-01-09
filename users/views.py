@@ -7,10 +7,23 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from users.serializers.login import LoginSerializer
 from users.serializers.user_read import UserReadSerializer
 from users.serializers.user_write import UserWriteSerializer
+from users.models import User
 from users.utils import (
     create_jwt_token,
 )
 from drf_spectacular.utils import extend_schema
+
+
+class IsTeacher(IsAuthenticated):
+    """
+    Custom permission to only allow teachers to access.
+    """
+
+    def has_permission(self, request, view):
+        return (
+            super().has_permission(request, view)
+            and request.user.role == User.Role.TEACHER
+        )
 
 
 class AuthViewSet(viewsets.ViewSet):
@@ -63,3 +76,25 @@ class AuthViewSet(viewsets.ViewSet):
     def me(self, request):
         serializer = UserReadSerializer(request.user)
         return Response({"user": serializer.data}, status=status.HTTP_200_OK)
+
+
+class StudentViewSet(viewsets.ViewSet):
+    """
+    Student management endpoints.
+    """
+
+    permission_classes = [IsTeacher]
+
+    @extend_schema(
+        responses={200: UserReadSerializer(many=True)},
+    )
+    def list(self, request):
+        """
+        GET /api/students/
+        List all students. Teacher only.
+        """
+        students = User.objects.filter(role=User.Role.STUDENT)
+        serializer = UserReadSerializer(students, many=True)
+        return Response(
+            {"success": True, "data": serializer.data}, status=status.HTTP_200_OK
+        )

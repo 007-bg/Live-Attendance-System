@@ -12,6 +12,15 @@ class UserWriteSerializer(serializers.ModelSerializer):
         write_only=True, min_length=8, style={"input_type": "password"}
     )
 
+    def validate_role(self, value):
+        """Validate that the role is one of the allowed values."""
+        allowed_roles = ["TEACHER", "STUDENT"]
+        if value not in allowed_roles:
+            raise serializers.ValidationError(
+                f"Invalid role. Must be one of: {', '.join(allowed_roles)}"
+            )
+        return value
+
     class Meta:
         model = User
         fields = ("username", "email", "password", "role")
